@@ -1,3 +1,4 @@
+cat > .github/workflows/ci.yml << 'EOF'
 name: CI Pipeline
 
 permissions:
@@ -14,13 +15,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Build Docker image
         run: docker build -t admintita/nginx-custom:latest .
 
-      - name: Trivy image scan
+      - name: Trivy scan
         uses: aquasecurity/trivy-action@0.20.0
         with:
           image-ref: admintita/nginx-custom:latest
