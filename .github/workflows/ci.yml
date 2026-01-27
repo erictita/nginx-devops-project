@@ -6,29 +6,32 @@ permissions:
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
   build-and-scan:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout repo
         uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
       - name: Build Docker image
         run: docker build -t admintita/nginx-custom:latest .
 
       - name: Trivy scan
-        uses: aquasecurity/trivy-action@0.20.0
+        uses: aquasecurity/trivy-action@v0.20.0
         with:
           image-ref: admintita/nginx-custom:latest
           severity: HIGH,CRITICAL
           exit-code: 1
 
       - name: Checkov scan
-        uses: bridgecrewio/checkov-action@master
+        uses: bridgecrewio/checkov-action@v2
         with:
           directory: .
