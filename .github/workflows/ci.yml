@@ -24,7 +24,7 @@ jobs:
         run: docker build -t admintita/nginx-custom:latest .
 
       - name: Trivy scan
-        uses: aquasecurity/trivy-action@v0.23.0
+        uses: aquasecurity/trivy-action@v0.22.0
         with:
           image-ref: admintita/nginx-custom:latest
           severity: HIGH,CRITICAL
