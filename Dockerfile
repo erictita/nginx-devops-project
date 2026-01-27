@@ -1,12 +1,12 @@
-FROM nginx:alpine
+FROM nginx:stable-alpine
 
-# Create non-root user
+# Create a non-root user
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
-# Copy website
+# Copy static site
 COPY index.html /usr/share/nginx/html/index.html
 
-# Health check
+# Add a HEALTHCHECK
 HEALTHCHECK CMD wget -q -O /dev/null http://localhost || exit 1
 
 # Switch to non-root user
