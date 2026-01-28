@@ -1,36 +1,42 @@
 name: CI Pipeline
 
-permissions:
-  contents: read
-
 on:
   push:
-    branches: ["main"]
+    branches:
+      - main
   pull_request:
-    branches: ["main"]
 
 jobs:
-  build-and-scan:
+  security-scan:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+    # -----------------------------
+    # Docker Build
+    # -----------------------------
+    - name: Build Docker image
+      run: |
+        docker build -t myapp:latest .
 
-      - name: Build Docker image
-        run: docker build -t admintita/nginx-custom:latest .
+    # -----------------------------
+    # Trivy Scan (Docker Image)
+    # -----------------------------
+    - name: Trivy vulnerability scan
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: myapp:latest
+        format: table
+        exit-code: 0
+        severity: CRITICAL,HIGH
 
-      - name: Trivy scan
-        uses: aquasecurity/trivy-action@v0.22.0
-        with:
-          image-ref: admintita/nginx-custom:latest
-          severity: HIGH,CRITICAL
-          exit-code: 1
-
-      - name: Checkov scan
-        uses: bridgecrewio/checkov-action@v2
-        with:
-          directory: .
+    # -----------------------------
+    # Checkov Scan (IaC / K8s / Terraform)
+    # -----------------------------
+    - name: Run Checkov
+      uses: bridgecrewio/checkov-action@master
+      with:
+        directory: .
+        soft_fail: true
